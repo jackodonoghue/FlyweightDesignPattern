@@ -1,25 +1,18 @@
 import java.awt.*;
 
 public class Cell  {
-    private int x;
-    private int y;
     private int height;
     private int width;
     private Color color;
 
 
-    public Cell(int x, int y, int height, int width) {
-        this.x = x;
-        this.y = y;
+    public Cell(int height, int width, Color color) {
         this.height = height;
         this.width = width;
-    }
-
-    public void setColor(Color color) {
         this.color = color;
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics g, int x, int y) {
         g.setColor(color);
         g.fillRect(x, y, width, height);
     }

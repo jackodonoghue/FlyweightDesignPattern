@@ -14,6 +14,12 @@ public class Board extends JFrame implements ActionListener {
         this.ROWS_COLS = rows_cols;
         grid = new boolean[this.ROWS_COLS][this.ROWS_COLS];
         TIMER = new Timer(delay, this);
+
+        initBoard();
+        initGame();
+    }
+
+    private void initBoard() {
         int length = this.ROWS_COLS * 10;
 
         setTitle("Game of Life");
@@ -21,8 +27,6 @@ public class Board extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-
-        initGame();
     }
 
     private void initGame() {
@@ -41,21 +45,21 @@ public class Board extends JFrame implements ActionListener {
                 x = getCoordinate(i);
                 y = getCoordinate(j);
 
-                Cell cell = new Cell(x, y, height, width);
+                Cell cell;
 
                 if(grid[i][j]){
-                    cell.setColor(Color.BLUE);
+                    cell = CellFactory.getCell(height,width, Color.BLUE);
                 }
                 else{
-                    cell.setColor(Color.WHITE);
+                    cell = CellFactory.getCell(height,width, Color.WHITE);
                 }
-                cell.draw(graphics);
+                cell.draw(graphics, x, y);
             }
         }
     }
 
-    private int getLength(int totalLength) {
-        return totalLength/ROWS_COLS;
+    private int getLength(int totalLengthOfBoard) {
+        return totalLengthOfBoard/ROWS_COLS;
     }
 
     private int getCoordinate(int currentRowCol) {
@@ -80,18 +84,16 @@ public class Board extends JFrame implements ActionListener {
 
         for (int i = 1; i < ROWS_COLS - 1; i++) {
             for (int j = 1; j < ROWS_COLS - 1; j++) {
-                int surrounding = 0;
+                int surroundingCellsAlive = 0;
 
-                surrounding = getSurrounding(i, j, surrounding);
+                surroundingCellsAlive = getSurroundingCellsAlive(i, j, surroundingCellsAlive);
 
                 if (grid[i][j]) { //is alive
-                    surrounding--;
+                    surroundingCellsAlive--;
 
-                    future[i][j] = (surrounding == 2) || (surrounding == 3);
+                    future[i][j] = (surroundingCellsAlive == 2) || (surroundingCellsAlive == 3);
                 } else {//if dead
-                    if (surrounding == 3) {
-                        future[i][j] = true;
-                    }
+                    future[i][j] = surroundingCellsAlive == 3;
                 }
             }
         }
@@ -99,7 +101,7 @@ public class Board extends JFrame implements ActionListener {
         grid = future;
     }
 
-    private int getSurrounding(int x, int y, int surrounding) {
+    private int getSurroundingCellsAlive(int x, int y, int surrounding) {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (grid[x + i][y + j])
