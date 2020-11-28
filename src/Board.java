@@ -4,17 +4,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Board extends JFrame implements ActionListener {
-    private final int ROWS_COLS = 100;
+    private final int ROWS_COLS;
 
-    private final int DELAY = 200;
-    private final Timer TIMER = new Timer(DELAY, this);
+    private boolean[][] grid;
 
-    private boolean[][] grid = new boolean[ROWS_COLS][ROWS_COLS];
+    private final Timer TIMER;
 
+    public Board(int rows_cols, int delay) {
+        this.ROWS_COLS = rows_cols;
+        grid = new boolean[this.ROWS_COLS][this.ROWS_COLS];
+        TIMER = new Timer(delay, this);
+        int length = this.ROWS_COLS * 10;
 
-    public Board() {
         setTitle("Game of Life");
-        setSize(500,500);
+        setSize(length,length);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -22,21 +25,23 @@ public class Board extends JFrame implements ActionListener {
         initGame();
     }
 
-    public void initGame() {
+    private void initGame() {
         fillGrid();
         TIMER.start();
     }
 
     @Override
     public void paint(Graphics graphics) {
+        int x, y;
+        int height = getLength(getHeight());
+        int width = getLength(getWidth());
+
         for (int i = 0; i < ROWS_COLS; i++)  {
             for (int j = 0; j < ROWS_COLS; j++) {
-                int x = (getWidth()*i)/ROWS_COLS;
-                int y = (getHeight()*j)/ROWS_COLS;
+                x = getCoordinate(i);
+                y = getCoordinate(j);
 
-                System.out.println(getHeight()/ROWS_COLS);
-
-                Cell cell = new Cell(x, y, getHeight()/ROWS_COLS, getWidth()/ROWS_COLS);
+                Cell cell = new Cell(x, y, height, width);
 
                 if(grid[i][j]){
                     cell.setColor(Color.BLUE);
@@ -49,16 +54,25 @@ public class Board extends JFrame implements ActionListener {
         }
     }
 
+    private int getLength(int totalLength) {
+        return totalLength/ROWS_COLS;
+    }
+
+    private int getCoordinate(int currentRowCol) {
+        return (getWidth()*currentRowCol)/ROWS_COLS;
+    }
+
     private void fillGrid() {
         for (int i = 0; i < ROWS_COLS; i++) {
-            for (int j = 0; j < ROWS_COLS; j++) {
-                if (Math.random() * 100 < 20 && (i != 0 && j != 0) && (i != ROWS_COLS - 1 && j != ROWS_COLS - 1)) {
-                    grid[i][j] = true;
-                } else {
-                    grid[i][j] = false;
-                }
-            }
+            for (int j = 0; j < ROWS_COLS; j++)
+                grid[i][j] = isAliveProbability();
         }
+    }
+
+    private boolean isAliveProbability() {
+        int probabilityOfAlive = 20;
+
+        return Math.random() * 100 < probabilityOfAlive;
     }
 
     private void iterate() {
@@ -68,21 +82,12 @@ public class Board extends JFrame implements ActionListener {
             for (int j = 1; j < ROWS_COLS - 1; j++) {
                 int surrounding = 0;
 
-                for (int k = -1; k <= 1; k++) {
-                    for (int l = -1; l <= 1; l++) {
-                        if (grid[i + k][j + l])
-                            surrounding++;
-                    }
-                }
+                surrounding = getSurrounding(i, j, surrounding);
 
                 if (grid[i][j]) { //is alive
                     surrounding--;
 
-                    if ((surrounding == 2) || (surrounding == 3)) { //survives
-                        future[i][j] = true;
-                    } else {//cell dies
-                        future[i][j] = false;
-                    }
+                    future[i][j] = (surrounding == 2) || (surrounding == 3);
                 } else {//if dead
                     if (surrounding == 3) {
                         future[i][j] = true;
@@ -92,6 +97,16 @@ public class Board extends JFrame implements ActionListener {
         }
 
         grid = future;
+    }
+
+    private int getSurrounding(int x, int y, int surrounding) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (grid[x + i][y + j])
+                    surrounding++;
+            }
+        }
+        return surrounding;
     }
 
     @Override
