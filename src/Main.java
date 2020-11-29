@@ -2,10 +2,7 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        int rows = getRows();
-        int delay = getDelay();
-
-        new Board(rows,delay);
+        new Board (getRows(),getDelay());
     }
 
     private static int getRows() {
