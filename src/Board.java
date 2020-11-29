@@ -116,4 +116,8 @@ public class Board extends JFrame implements ActionListener {
         iterate();
         repaint();
     }
+
+    public int getGridSize() {
+        return grid.length * grid[0].length;
+    }
 }

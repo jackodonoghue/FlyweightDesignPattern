@@ -16,5 +16,9 @@ public class CellFactory {
 
         return cell;
     }
+
+    public static int getCellCacheCount() {
+        return cellCache.size();
+    }
 }
 
